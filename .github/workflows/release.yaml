@@ -62,7 +62,7 @@ jobs:
     steps:
       - name: List releases
         run:
-          gh release list
+          gh release list --repo "${{ github.repository }}"
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
