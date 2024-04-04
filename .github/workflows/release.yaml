@@ -14,13 +14,15 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Debug
-        run: |
-          echo "${{ inputs.version }}"
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Add a change
+        run: |
+          echo "${{ inputs.version }}"
+          mkdir -p .changes/
+          echo "${{ inputs.version }}" > .changes/${{ inputs.version }}.md
       - name: Tag
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
@@ -46,7 +48,7 @@ jobs:
       - name: Run goreleaser
         uses: goreleaser/goreleaser-action@v5
         with:
-          args: release --clean
+          args: release --release-notes=".changes/${{ inputs.version }}.md" --clean
           version: v1.24.0
 
   test:
