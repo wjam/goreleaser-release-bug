@@ -1,0 +1,66 @@
+name: Demo release bug
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version number
+        required: true
+        type: string
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Tag
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          tagging_message: ${{ inputs.version }}
+
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs:
+      - tag
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: "refs/tags/${{ input.version }}"
+
+      - name: Set up go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Run goreleaser
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          args: release --clean
+          version: v1.24.0
+
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Permission needed to see draft releases
+    needs:
+      - release
+    steps:
+      - name: List releases
+        run:
+          gh release list
+
+      - name: Download the draft release
+        run: |
+          gh release download "${{ inputs.version }}" --repo "${{ github.repository }}" --pattern "*_linux_amd64.zip" --output download.zip
+        
+          unzip download.zip
+          
+          ls -lh .
