@@ -36,7 +36,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: "refs/tags/${{ input.version }}"
+          ref: "refs/tags/${{ inputs.version }}"
 
       - name: Set up go
         uses: actions/setup-go@v5
