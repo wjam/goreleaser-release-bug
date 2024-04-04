@@ -50,6 +50,8 @@ jobs:
         with:
           args: release --release-notes=".changes/${{ inputs.version }}.md" --clean
           version: v1.24.0
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
   test:
     runs-on: ubuntu-latest
@@ -61,6 +63,8 @@ jobs:
       - name: List releases
         run:
           gh release list
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Download the draft release
         run: |
@@ -69,3 +73,5 @@ jobs:
           unzip download.zip
           
           ls -lh .
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
